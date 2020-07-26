@@ -3,14 +3,12 @@ using System.Collections.Generic;
 
 namespace MyServiceContainer
 {
-    public class ServiceDescription : IServiceDescription
+    public class ServiceDescription
     {
-        internal ServiceDescription _next = null;
-
         public ServiceDescription(
             Type serviceType,
             ServiceLifetime lifetime,
-            Func<IServiceProvider, Type[], object> factory)
+            Func<ServiceContainer, Type[], object> factory)
         {
             ServiceType = serviceType;
             Lifetime = lifetime;
@@ -19,16 +17,17 @@ namespace MyServiceContainer
 
         public Type ServiceType { get; set; }
         public ServiceLifetime Lifetime { get; set; }
-        public Func<IServiceProvider, Type[], object> Factory { get; set; }
+        public Func<ServiceContainer, Type[], object> Factory { get; set; }
+        internal ServiceDescription Next { get; set; }
 
-        internal IEnumerable<IServiceDescription> AsEnumerable()
+        internal IEnumerable<ServiceDescription> AsEnumerable()
         {
-            var list = new List<IServiceDescription>();
+            var list = new List<ServiceDescription>();
             ServiceDescription current = this;
             while (current != null)
             {
                 list.Add(current);
-                current = current._next;
+                current = current.Next;
             }
             return list;
         }

@@ -5,13 +5,13 @@ namespace MyServiceContainer
 {
     public class Key : IEquatable<Key>
     {
-        public Key(IServiceDescription serviceDescription, Type[] genericArguments)
+        public Key(ServiceDescription serviceDescription, Type[] genericArguments)
         {
             ServiceDescription = serviceDescription;
             GenericArguments = genericArguments;
         }
 
-        public IServiceDescription ServiceDescription { get; }
+        public ServiceDescription ServiceDescription { get; }
         public Type[] GenericArguments { get; }
 
         public bool Equals([AllowNull] Key other)
