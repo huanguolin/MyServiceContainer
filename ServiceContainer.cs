@@ -7,16 +7,23 @@ namespace MyServiceContainer
     {
         private readonly Dictionary<Key, ServiceDescription> _serviceDescriptionDict;
         private readonly Dictionary<Key, object> _serviceInstanceDict;
-        private readonly List<IDisposable> _disposableDict;
+        private readonly List<IDisposable> _disposables;
         internal readonly ServiceContainer _root;
 
         public ServiceContainer()
         {
+            _serviceDescriptionDict = new Dictionary<Key, ServiceDescription>();
+            _serviceInstanceDict = new Dictionary<Key, object>();
+            _disposables = new List<IDisposable>();
         }
 
-        // public ServiceContainer()
-        // {
-        // }
+        internal ServiceContainer(ServiceContainer parent)
+        {
+            _root = parent._root;
+            _serviceDescriptionDict = _root._serviceDescriptionDict;
+            _serviceInstanceDict = new Dictionary<Key, object>();
+            _disposables = new List<IDisposable>();
+        }
 
         public IServiceProvider CreateScopeContainer(IServiceContainer root)
         {
@@ -35,7 +42,10 @@ namespace MyServiceContainer
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            foreach (var item in _disposables)
+            {
+                item.Dispose();
+            }
         }
     }
 }
