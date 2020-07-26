@@ -41,5 +41,27 @@ namespace MyServiceContainer
 
             return true;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Key key)
+            {
+                return Equals(key);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = ServiceDescription.GetHashCode();
+            foreach (var item in GenericArguments)
+            {
+                hashCode ^= item.GetHashCode();
+            }
+            return hashCode;
+        }
     }
 }

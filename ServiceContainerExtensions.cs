@@ -5,6 +5,11 @@ namespace MyServiceContainer
 {
     public static class ServiceContainerExtensions
     {
+        public static TServiceType GetService<TServiceType>(this ServiceContainer container)
+        {
+            return (TServiceType)container.GetService(typeof(TServiceType));
+        }
+
         public static ServiceContainer AddSingleton<TServiceType, TImplementType>(
             this ServiceContainer container)
         {

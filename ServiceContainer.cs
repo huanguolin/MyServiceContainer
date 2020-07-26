@@ -13,6 +13,7 @@ namespace MyServiceContainer
 
         public ServiceContainer()
         {
+            _root = this;
             _serviceDescriptionDict = new Dictionary<Type, ServiceDescription>();
             _serviceInstanceDict = new Dictionary<Key, object>();
             _disposables = new List<IDisposable>();
@@ -88,49 +89,62 @@ namespace MyServiceContainer
 
         private object GetService(ServiceDescription serviceDescription, Type[] genericArguments)
         {
+            var key = new Key(serviceDescription, genericArguments);
+            Func<object> factory = () => serviceDescription.Factory(this, genericArguments);
             return serviceDescription.Lifetime switch
             {
-                ServiceLifetime.Singleton => GetOrCreateServiceInstance(serviceDescription,
-                                                                        genericArguments,
+                ServiceLifetime.Singleton => GetOrCreateServiceInstance(factory,
+                                                                        key,
                                                                         _root._serviceInstanceDict,
                                                                         _root._disposables),
-                ServiceLifetime.Scope => GetOrCreateServiceInstance(serviceDescription,
-                                                                    genericArguments,
+                ServiceLifetime.Scope => GetOrCreateServiceInstance(factory,
+                                                                    key,
                                                                     _serviceInstanceDict,
                                                                     _disposables),
-                _ => CreateServiceInstance(serviceDescription,
-                                           genericArguments,
+                _ => CreateServiceInstance(factory,
+                                           key,
+                                           null,
                                            _disposables),
             };
         }
 
         private object GetOrCreateServiceInstance(
-            ServiceDescription serviceDescription,
-            Type[] genericArguments,
+            Func<object> factory,
+            Key key,
             Dictionary<Key, object> serviceInstanceDict,
             List<IDisposable> disposables)
         {
-            var key = new Key(serviceDescription, genericArguments);
             if (serviceInstanceDict.TryGetValue(key, out var instance))
             {
                 return instance;
             }
             else
             {
-                return CreateServiceInstance(serviceDescription, genericArguments, disposables);
+                return CreateServiceInstance(factory,
+                                             key,
+                                             serviceInstanceDict,
+                                             disposables);
             }
         }
 
         private object CreateServiceInstance(
-            ServiceDescription serviceDescription,
-            Type[] genericArguments,
+            Func<object> factory,
+            Key key,
+            Dictionary<Key, object> serviceInstanceDict,
             List<IDisposable> disposables)
         {
-            var instance = serviceDescription.Factory(this, genericArguments);
+            var instance = factory();
+
+            if (serviceInstanceDict != null)
+            {
+                serviceInstanceDict.Add(key, instance);
+            }
+
             if (instance is IDisposable disposable)
             {
                 disposables.Add(disposable);
             }
+
             return instance;
         }
     }
