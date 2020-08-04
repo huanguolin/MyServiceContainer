@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace MyServiceContainer
 {
@@ -7,12 +8,15 @@ namespace MyServiceContainer
         static void Main(string[] args)
         {
             // TestRoot();
-            TestScope();
+            // TestScope();
+            // TestGenericArgs();
+            TestEnumerable();
         }
 
         static void TestRoot()
         {
             using var container = new ServiceContainer();
+
             container.AddTransient<IFoo, Foo>();
             container.AddSingleton<IBar, Bar>();
             container.AddScope<IBaz, Baz>();
@@ -42,14 +46,45 @@ namespace MyServiceContainer
                 container.GetService<IBaz>();
                 container.GetService<IBaz>();
             }
+
             container.GetService<IFoo>();
             container.GetService<IBar>();
+        }
+
+        static void TestGenericArgs()
+        {
+            var container = new ServiceContainer();
+            using (var scopeContainer = container.CreateScopeContainer())
+            {
+                container.AddScope<IFoo, Foo>();
+                container.AddScope<IBar, Bar>();
+                container.AddScope<IBaz, Baz>();
+
+                container.AddService(typeof(IQux<IFoo>), typeof(Qux<>), ServiceLifetime.Scope);
+                container.AddService(typeof(IQux<IBar>), typeof(Qux<>), ServiceLifetime.Scope);
+                container.AddService(typeof(IQux<IBaz>), typeof(Qux<>), ServiceLifetime.Scope);
+
+                container.GetService<IQux<IFoo>>();
+                container.GetService<IQux<IBar>>();
+                container.GetService<IQux<IBaz>>();
+            }
+        }
+
+        static void TestEnumerable()
+        {
+            var container = new ServiceContainer();
+
+            container.AddSingleton<IBaz, Baz>();
+            container.AddSingleton<IBaz, Baz2>();
+
+            container.GetService<IEnumerable<IBaz>>();
         }
     }
 
     interface IFoo { }
     interface IBar { }
     interface IBaz { }
+    interface IQux<T> {}
     class Foo : IFoo, IDisposable
     {
         public Foo()
@@ -84,6 +119,30 @@ namespace MyServiceContainer
         public void Dispose()
         {
             Console.WriteLine("Baz dispose.");
+        }
+    }
+    class Baz2 : IBaz, IDisposable
+    {
+        public Baz2()
+        {
+            Console.WriteLine("Baz2 create.");
+        }
+
+        public void Dispose()
+        {
+            Console.WriteLine("Baz2 dispose.");
+        }
+    }
+    class Qux<T> : IQux<T>, IDisposable
+    {
+        public Qux(T t)
+        {
+            Console.WriteLine($"Qux create and get {t.GetType()}.");
+        }
+
+        public void Dispose()
+        {
+            Console.WriteLine("Qux dispose.");
         }
     }
 }

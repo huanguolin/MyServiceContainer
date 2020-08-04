@@ -47,10 +47,16 @@ namespace MyServiceContainer
                     throw new InvalidOperationException("You should add service first!");
                 }
 
-                return headerDescription
+                var services = headerDescription
                     .AsEnumerable()
                     .Select(x => GetService(x, Type.EmptyTypes))
-                    .ToList();
+                    .ToArray();
+
+                // 这段代码用来避免外面类型转换发生错误
+                Array array = Array.CreateInstance(realServiceType, services.Length);
+                services.CopyTo(array, 0);
+
+                return array;
             }
 
             if (!_serviceDescriptionDict.TryGetValue(serviceType, out var serviceDescription))
@@ -68,7 +74,7 @@ namespace MyServiceContainer
             if (_serviceDescriptionDict.TryGetValue(serviceDescription.ServiceType, out var exists))
             {
                 // 后来居上
-                _serviceDescriptionDict.Add(serviceDescription.ServiceType, serviceDescription);
+                _serviceDescriptionDict[serviceDescription.ServiceType] = serviceDescription;
                 serviceDescription.Next = exists;
             }
             else
