@@ -35,6 +35,30 @@ namespace MyServiceContainer
                                         ServiceLifetime.Transient);
         }
 
+        public static ServiceContainer AddSingleton<TServiceType>(
+            this ServiceContainer container)
+        {
+            return container.AddService(typeof(TServiceType),
+                                        typeof(TServiceType),
+                                        ServiceLifetime.Singleton);
+        }
+
+        public static ServiceContainer AddScope<TServiceType>(
+            this ServiceContainer container)
+        {
+            return container.AddService(typeof(TServiceType),
+                                        typeof(TServiceType),
+                                        ServiceLifetime.Scope);
+        }
+
+        public static ServiceContainer AddTransient<TServiceType>(
+            this ServiceContainer container)
+        {
+            return container.AddService(typeof(TServiceType),
+                                        typeof(TServiceType),
+                                        ServiceLifetime.Transient);
+        }
+
         public static ServiceContainer AddService(
             this ServiceContainer container,
             Type serviceType,
