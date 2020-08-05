@@ -35,20 +35,23 @@ namespace MyServiceContainer
 
             using (var scopeContainer = container.CreateScopeContainer())
             {
-                container.AddTransient<IFoo, Foo>();
-                container.AddSingleton<IBar, Bar>();
-                container.AddScope<IBaz, Baz>();
+                scopeContainer.AddTransient<IFoo, Foo>();
+                scopeContainer.AddSingleton<IBar, Bar>();
+                scopeContainer.AddScope<IBaz, Baz>();
 
-                container.GetService<IFoo>();
-                container.GetService<IFoo>();
-                container.GetService<IBar>();
-                container.GetService<IBar>();
-                container.GetService<IBaz>();
-                container.GetService<IBaz>();
+                scopeContainer.GetService<IFoo>();
+                scopeContainer.GetService<IFoo>();
+                scopeContainer.GetService<IBar>();
+                scopeContainer.GetService<IBar>();
+                scopeContainer.GetService<IBaz>();
+                scopeContainer.GetService<IBaz>();
             }
 
             container.GetService<IFoo>();
             container.GetService<IBar>();
+            container.GetService<IBaz>();
+
+            container.Dispose();
         }
 
         static void TestGenericArgs()
@@ -56,17 +59,17 @@ namespace MyServiceContainer
             var container = new ServiceContainer();
             using (var scopeContainer = container.CreateScopeContainer())
             {
-                container.AddScope<IFoo, Foo>();
-                container.AddScope<IBar, Bar>();
-                container.AddScope<IBaz, Baz>();
+                scopeContainer.AddScope<IFoo, Foo>();
+                scopeContainer.AddScope<IBar, Bar>();
+                scopeContainer.AddScope<IBaz, Baz>();
 
-                container.AddService(typeof(IQux<IFoo>), typeof(Qux<>), ServiceLifetime.Scope);
-                container.AddService(typeof(IQux<IBar>), typeof(Qux<>), ServiceLifetime.Scope);
-                container.AddService(typeof(IQux<IBaz>), typeof(Qux<>), ServiceLifetime.Scope);
+                scopeContainer.AddService(typeof(IQux<IFoo>), typeof(Qux<>), ServiceLifetime.Scope);
+                scopeContainer.AddService(typeof(IQux<IBar>), typeof(Qux<>), ServiceLifetime.Scope);
+                scopeContainer.AddService(typeof(IQux<IBaz>), typeof(Qux<>), ServiceLifetime.Scope);
 
-                container.GetService<IQux<IFoo>>();
-                container.GetService<IQux<IBar>>();
-                container.GetService<IQux<IBaz>>();
+                scopeContainer.GetService<IQux<IFoo>>();
+                scopeContainer.GetService<IQux<IBar>>();
+                scopeContainer.GetService<IQux<IBaz>>();
             }
         }
 
